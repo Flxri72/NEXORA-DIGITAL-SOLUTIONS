@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { skillsConfig } from '@/config';
+import { skillsConfig, techIconsConfig } from '@/config';
+import { FloatingKey } from '@/components/futuristic';
 import { Check, Sparkles } from 'lucide-react';
 
 export function Skills() {
@@ -68,7 +69,7 @@ export function Skills() {
         {/* Skills Grid */}
         <div
           className={cn(
-            'grid sm:grid-cols-2 gap-4 transition-all duration-700',
+            'grid sm:grid-cols-2 gap-4 transition-all duration-700 mb-16',
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           )}
           style={{ transitionDelay: '300ms' }}
@@ -95,6 +96,40 @@ export function Skills() {
               <Check className="w-5 h-5 text-[#39FF14] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           ))}
+        </div>
+
+        {/* Floating Tech Icons */}
+        <div
+          className={cn(
+            'mb-16 transition-all duration-700',
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          )}
+          style={{ transitionDelay: '500ms' }}
+        >
+          <p className="text-label text-[#A7B0BC] text-center mb-8">TUS HERRAMIENTAS</p>
+
+          {/* Icons Grid */}
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
+            {techIconsConfig.map((tech, index) => (
+              <div
+                key={tech.name}
+                className="animate-float"
+                style={{
+                  animationDelay: `${index * 0.5}s`,
+                  animationDuration: `${4 + index * 0.5}s`,
+                }}
+              >
+                <FloatingKey
+                  name={tech.name}
+                  icon={tech.icon}
+                  color={tech.color}
+                  glowColor={tech.glowColor}
+                  description={tech.description}
+                  delay={index * 0.1}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Bottom decoration */}

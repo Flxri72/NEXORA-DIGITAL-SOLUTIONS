@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 
@@ -22,7 +23,20 @@ export function FloatingKey({
   className,
 }: FloatingKeyProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (isExpanded) {
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = '';
+    }
+
+    return () => {
+      document.documentElement.style.overflow = '';
+    };
+  }, [isExpanded]);
 
   const handleClick = () => {
     setIsExpanded(!isExpanded);
@@ -30,7 +44,11 @@ export function FloatingKey({
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsExpanded(false);
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsExpanded(false);
+      setIsClosing(false);
+    }, 600);
   };
 
   return (
@@ -65,12 +83,12 @@ export function FloatingKey({
           }}
         >
           {/* Icon Image */}
-          <img 
-            src={icon} 
+          <img
+            src={icon}
             alt={name}
             className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 object-contain drop-shadow-lg"
           />
-          
+
           {/* Bottom glow */}
           <div
             className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2/3 h-6 rounded-full blur-xl transition-opacity duration-300"
@@ -82,24 +100,38 @@ export function FloatingKey({
         </div>
       </div>
 
-      {/* Expanded State - Modal Overlay */}
-      {isExpanded && (
-        <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      {/* Expanded State - Modal Portal */}
+      {isExpanded && createPortal(
+        <div
+          className={cn(
+            'fixed inset-0 z-[100] flex items-center justify-center p-4',
+            isClosing ? 'animate-fade-out' : 'animate-fade-in'
+          )}
           onClick={handleClose}
+          style={{
+            backdropFilter: isClosing ? 'blur(0px)' : 'blur(12px)',
+            transition: 'backdrop-filter 0.3s ease-out',
+          }}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" />
-          
+          <div className={cn(
+            'absolute inset-0',
+            isClosing ? 'bg-black/0' : 'bg-black/88',
+            'transition-colors duration-300'
+          )} />
+
           {/* Expanded Card */}
-          <div 
-            className="relative z-10 animate-expand-card"
+          <div
+            className={cn(
+              'relative z-10',
+              isClosing ? 'animate-collapse-card' : 'animate-expand-card'
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <div
               className="relative w-[320px] md:w-[400px] rounded-3xl p-8 md:p-10"
               style={{
-                background: `linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03))`,
+                background: `linear-gradient(145deg, ${color}45, ${color}20)`,
                 border: `2px solid ${color}`,
                 boxShadow: `0 0 80px ${glowColor}, 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)`,
               }}
@@ -114,23 +146,23 @@ export function FloatingKey({
 
               {/* Large Icon */}
               <div className="flex justify-center mb-6">
-                <div 
+                <div
                   className="w-28 h-28 md:w-36 md:h-36 rounded-2xl flex items-center justify-center"
                   style={{
                     background: `linear-gradient(145deg, ${color}30, ${color}10)`,
                     boxShadow: `0 0 40px ${glowColor}`,
                   }}
                 >
-                  <img 
-                    src={icon} 
+                  <img
+                    src={icon}
                     alt={name}
-                    className="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-2xl animate-spin-slow"
+                    className="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-2xl animate-float-gentle"
                   />
                 </div>
               </div>
 
               {/* Title - Beautiful Typography */}
-              <h3 
+              <h3
                 className="text-center font-space font-bold text-3xl md:text-4xl mb-4"
                 style={{
                   background: `linear-gradient(135deg, ${color}, #fff)`,
@@ -144,7 +176,7 @@ export function FloatingKey({
               </h3>
 
               {/* Decorative Line */}
-              <div 
+              <div
                 className="w-24 h-1 mx-auto mb-6 rounded-full"
                 style={{
                   background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
@@ -158,7 +190,7 @@ export function FloatingKey({
 
               {/* Tech Badge */}
               <div className="mt-6 flex justify-center">
-                <span 
+                <span
                   className="px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider"
                   style={{
                     background: `${color}20`,
@@ -171,7 +203,8 @@ export function FloatingKey({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <style>{`
@@ -179,7 +212,12 @@ export function FloatingKey({
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        
+
+        @keyframes fade-out {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+
         @keyframes expand-card {
           0% {
             opacity: 0;
@@ -193,22 +231,53 @@ export function FloatingKey({
             transform: scale(1) rotateY(0deg);
           }
         }
-        
+
+        @keyframes collapse-card {
+          0% {
+            opacity: 1;
+            transform: scale(1) rotateY(0deg);
+          }
+          50% {
+            transform: scale(1.1) rotateY(90deg);
+          }
+          100% {
+            opacity: 0;
+            transform: scale(0.5) rotateY(180deg);
+          }
+        }
+
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
+        @keyframes float-gentle {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-12px); }
+        }
+
         .animate-fade-in {
           animation: fade-in 0.3s ease-out forwards;
         }
-        
+
+        .animate-fade-out {
+          animation: fade-out 0.3s ease-out forwards;
+        }
+
         .animate-expand-card {
           animation: expand-card 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
-        
+
+        .animate-collapse-card {
+          animation: collapse-card 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
         .animate-spin-slow {
           animation: spin-slow 8s linear infinite;
+        }
+
+        .animate-float-gentle {
+          animation: float-gentle 3s ease-in-out infinite;
         }
       `}</style>
     </>

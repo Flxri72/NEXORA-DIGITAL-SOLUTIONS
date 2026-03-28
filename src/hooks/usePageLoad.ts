@@ -5,21 +5,25 @@ export function usePageLoad(delay: number = 100) {
   const [showOverlay, setShowOverlay] = useState(true);
 
   useEffect(() => {
-    // Wait for fonts and images to load
-    const handleLoad = () => {
+    // Wait for video to end or delay whichever is longer
+    const handlePageReady = () => {
+      // Give video time to play and fade out (video duration + fade animation)
+      // Typical video duration: 3-5 seconds + 1 second fade = 4-6 seconds
+      const videoAndFadeDuration = 5500; // 5.5 seconds
+
       setTimeout(() => {
         setShowOverlay(false);
         setTimeout(() => {
           setIsLoaded(true);
         }, 500);
-      }, delay);
+      }, Math.max(delay, videoAndFadeDuration));
     };
 
     if (document.readyState === 'complete') {
-      handleLoad();
+      handlePageReady();
     } else {
-      window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
+      window.addEventListener('load', handlePageReady);
+      return () => window.removeEventListener('load', handlePageReady);
     }
   }, [delay]);
 

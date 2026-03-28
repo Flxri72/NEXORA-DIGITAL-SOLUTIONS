@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { heroConfig, techIconsConfig } from '@/config';
-import { FloatingKey } from '@/components/futuristic';
+import { heroConfig } from '@/config';
 import { ChevronDown } from 'lucide-react';
 
 export function Hero() {
@@ -92,40 +91,6 @@ export function Hero() {
             {heroConfig.ctaSecondary}
           </a>
         </div>
-
-        {/* Stack Tecnológico - Iconos flotantes */}
-        <div
-          className={cn(
-            'transition-all duration-1000',
-            isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-          )}
-          style={{ transitionDelay: '1000ms' }}
-        >
-          <p className="text-label text-[#A7B0BC] mb-8">STACK TECNOLÓGICO</p>
-          
-          {/* Icons Grid */}
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
-            {techIconsConfig.map((tech, index) => (
-              <div
-                key={tech.name}
-                className="animate-float"
-                style={{
-                  animationDelay: `${index * 0.5}s`,
-                  animationDuration: `${4 + index * 0.5}s`,
-                }}
-              >
-                <FloatingKey
-                  name={tech.name}
-                  icon={tech.icon}
-                  color={tech.color}
-                  glowColor={tech.glowColor}
-                  description={tech.description}
-                  delay={index * 0.1}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Role labels on sides */}
@@ -137,7 +102,7 @@ export function Hero() {
           )}
           style={{ transitionDelay: '1200ms' }}
         >
-          <span 
+          <span
             className="text-label text-[#A7B0BC]"
             style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
           >
